@@ -1,35 +1,49 @@
 package com.zw.entity;
-import lombok.AllArgsConstructor;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.EqualsAndHashCode;
+import org.springframework.data.annotation.CreatedBy;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedBy;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
-import java.io.Serializable;
-
+import java.util.Date;
 /**
  * 用户实体类（JPA映射 + Lombok简化）
  */
-@Data // 自动生成getter、setter、toString、equals、hashCode等方法
-@NoArgsConstructor // 自动生成无参构造（JPA必须）
-@AllArgsConstructor // 自动生成全参构造
+@Data
+@EqualsAndHashCode(callSuper = true) // ← 显式启用调用父类
 @Entity
 @Table(name = "t_user") // 指定数据库表名
-public class User implements Serializable {
-
+public class User extends BaseEntity {
     private static final long serialVersionUID = 1L;
-
-    @Id // 主键
-    @GeneratedValue(strategy = GenerationType.IDENTITY) // 自增策略（适配MySQL）
-    private Long id;
-
     @Column(name = "username", nullable = false, length = 50) // 列名、非空、长度
-    private String username;
+    protected String username;
 
     @Column(name = "age")
-    private Integer age;
+    protected Integer age;
 
     @Column(name = "email", length = 100)
-    private String email;
+    protected String email;
 
-    // 无需手动编写getter/setter、构造方法、toString，Lombok自动生成
+    @JsonProperty("createUserID")
+    @CreatedBy
+    @Column(
+            name = "create_user_id"
+    )
+    protected String createUserId;
+    @CreatedDate
+    @Column(name = "create_time")
+    protected Date createTime;
+    @JsonProperty("updateUserID")
+    @LastModifiedBy
+    @Column(name = "update_user_id")
+    private String updateUserId;
+
+    @Version
+    @Column(name = "update_time")
+    private  Date updateTime;
 }

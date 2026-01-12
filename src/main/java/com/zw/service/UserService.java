@@ -9,7 +9,7 @@ public interface UserService {
     User saveUser(User user);
 
     // 根据ID查询用户
-    Optional<User> getUserById(Long id);
+    Optional<User> getUserById(String id);
 
     // 查询所有用户
     List<User> getAllUsers();
@@ -18,5 +18,5 @@ public interface UserService {
     List<User> getUserByUsername(String username);
 
     // 删除用户
-    void deleteUser(Long id);
+    void deleteUser(String id);
 }
