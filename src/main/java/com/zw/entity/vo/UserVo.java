@@ -17,14 +17,13 @@ import java.util.Date;
 /**
  * 用户实体类vo
  */
-@Data
-public class UserVo {
-    private static final long serialVersionUID = 1L;
-    protected String username;
-    protected Integer age;
-    protected String email;
-    protected String createUserId;
-    protected Date createTime;
-    private String updateUserId;
-    private  Date updateTime;
+
+public interface  UserVo {
+    String getUsername();
+    Integer getAge();
+    String getEmail();
+    String getCreateUserId();
+    Date getCreateTime();
+    String getUpdateUserId();
+    Date getUpdateTime();
 }

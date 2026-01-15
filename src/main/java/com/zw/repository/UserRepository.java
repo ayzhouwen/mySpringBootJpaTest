@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 用户数据访问层（JPA自动实现CRUD）
@@ -20,32 +21,54 @@ public interface UserRepository extends JpaRepository<User, String> {
     List<User> findByAge(Integer age);
 
     /**
-     * 方案1：原生SQL查询映射到VO
+     * 方案1：原生SQL查询映射到VO,UserVo必须是接口，并且结果不能被json序列化
      * 注意：参数绑定 ?1 对应方法参数 keyword
      */
     @Query(value = "SELECT " +
-            "u.username  username, " +
-            "u.age  age, " +
-            "u.email  email, " +
-            "u.create_user_id  createUserId, " +     // 数据库字段 -> Java属性
-            "u.create_time  createTime, " +         // 注意别名必须匹配
-            "u.update_user_id  updateUserId, " +
-            "u.update_time  updateTime " +
+            "u.username AS username, " +
+            "u.age  AS age, " +
+            "u.email  AS email, " +
+            "u.create_user_id  AS createUserId, " +     // 数据库字段 -> Java属性
+            "u.create_time AS  createTime, " +         // 注意别名必须匹配
+            "u.update_user_id  AS updateUserId, " +
+            "u.update_time  AS updateTime " +
             "FROM t_user u " +                        // 这里是数据库表名
-            "WHERE u.username LIKE %?1%",
+            "WHERE u.username LIKE CONCAT('%', ?1, '%')",
             nativeQuery = true)
     List<UserVo> findUserVoByNativeSql(String keyword);
 
+    /**
+     * 方案1.1：原生SQL查询映射到Map，可以被json序列化
+     */
+    @Query(value = "SELECT " +
+            "u.username AS username, " +
+            "u.age  AS age, " +
+            "u.email  AS email, " +
+            "u.create_user_id  AS createUserId, " +     // 数据库字段 -> Java属性
+            "u.create_time AS  createTime, " +         // 注意别名必须匹配
+            "u.update_user_id  AS updateUserId, " +
+            "u.update_time  AS updateTime " +
+            "FROM t_user u " +                        // 这里是数据库表名
+            "WHERE u.username LIKE CONCAT('%', ?1, '%')",
+            nativeQuery = true)
+    List<Map<String, Object>> findUserVoByNativeSql2(String keyword);
+    /**
+     * 方案2.1：JPQL 查询返回 User，注意这必须要查询出所有的列
+     * 注意：要注意后面的User属性变动可能会写入到数据库
+     */
+    @Query("SELECT u FROM User u WHERE u.username LIKE CONCAT('%', :keyword, '%')")
+    List<User> findUserVoByJpqlReturnEntity(String keyword);
 
     /**
-     * 方案2：JPQL 查询返回 Tuple
-     * 注意：这里查询的是 User 实体的属性
+     * 方案2.2：JPQL 查询部分列不能用实体类，所有列才行
      */
-    @Query("SELECT " +
+
+    @Query("SELECT  " +
             "u.username, u.age, u.email, " +
             "u.createUserId, u.createTime, " +
             "u.updateUserId, u.updateTime " +
             "FROM User u " +
-            "WHERE u.username LIKE %:keyword%")
-    List<UserVo> findUserVoByJpql(String keyword);
+            "WHERE u.username LIKE CONCAT('%', :keyword, '%')")
+    List<UserVo> findUserVoByJpqlReturnEntity2(String keyword);
+
 }

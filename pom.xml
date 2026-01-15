@@ -59,6 +59,12 @@
             <artifactId>hutool-all</artifactId>
             <version>5.8.22</version> <!-- 兼容 JDK8 的最新稳定版 -->
         </dependency>
+        <!-- P6Spy - SQL 拦截与日志 -->
+        <dependency>
+            <groupId>p6spy</groupId>
+            <artifactId>p6spy</artifactId>
+            <version>3.9.1</version> <!-- 截至 2026 年仍是最新版 -->
+        </dependency>
     </dependencies>
 
     <build>

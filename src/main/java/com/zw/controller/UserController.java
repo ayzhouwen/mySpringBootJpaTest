@@ -50,4 +50,11 @@ public class UserController {
         userService.deleteUser(id);
         return ResponseEntity.noContent().build();
     }
+
+    //事务测试
+    @PostMapping("/transactionTest")
+    public ResponseEntity<String> transactionTest(@RequestBody User user) {
+        String rep = userService.testTransaction(user);
+        return ResponseEntity.ok(rep);
+    }
 }

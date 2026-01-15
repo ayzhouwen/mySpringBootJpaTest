@@ -19,4 +19,7 @@ public interface UserService {
 
     // 删除用户
     void deleteUser(String id);
+
+    //事务测试
+    String testTransaction(User user);
 }
