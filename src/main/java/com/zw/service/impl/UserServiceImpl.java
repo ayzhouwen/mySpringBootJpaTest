@@ -10,6 +10,8 @@ import com.zw.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,6 +24,8 @@ public class UserServiceImpl implements UserService {
     private static final Logger log = LoggerFactory.getLogger(UserServiceImpl.class);
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
 
     @Override
     public User saveUser(User user) {
@@ -94,5 +98,20 @@ public class UserServiceImpl implements UserService {
         }
 
         return "success:"+DateUtil.now();
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public String testJdbcTemplate(User user) {
+        String sql="select * from t_user where username like '%"+user.getUsername()+"%'";
+        List<User> users=jdbcTemplate.query(sql,new BeanPropertyRowMapper<>(User.class));
+        if (CollUtil.isNotEmpty(users)){
+            for (User u : users) {
+                //这里不会写入sql
+                u.setEmail(DateUtil.now()+"@-查询修改JDBC返回测试-qq.com");
+                log.info("返回jdbcTemplate查询结果：{}", JSONUtil.toJsonStr(u));
+            }
+        }
+        return "";
     }
 }

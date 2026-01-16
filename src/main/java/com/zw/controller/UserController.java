@@ -57,4 +57,10 @@ public class UserController {
         String rep = userService.testTransaction(user);
         return ResponseEntity.ok(rep);
     }
+
+    @PostMapping("/jdbcTemplateTest")
+    public ResponseEntity<String> jdbcTemplateTest(@RequestBody User user) {
+        String rep = userService.testJdbcTemplate(user);
+        return ResponseEntity.ok(rep);
+    }
 }

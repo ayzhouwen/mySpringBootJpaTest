@@ -12,7 +12,8 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import javax.persistence.*;
 import java.util.Date;
 /**
- * 用户实体类（JPA映射 + Lombok简化）
+ * 用户实体类（JPA映射 + Lombok简化） ，在updateTime字段上中加入@Version注解，很可能会导致数据查询更新后报错
+ * @Version 实体类字段类型必须为long
  */
 @Data
 @EqualsAndHashCode(callSuper = true) // ← 显式启用调用父类
@@ -43,7 +44,11 @@ public class User extends BaseEntity {
     @Column(name = "update_user_id")
     private String updateUserId;
 
-    @Version
+
     @Column(name = "update_time")
+    @LastModifiedDate
     private  Date updateTime;
+    @Column(name = "version")
+    @Version
+    private Long version;
 }

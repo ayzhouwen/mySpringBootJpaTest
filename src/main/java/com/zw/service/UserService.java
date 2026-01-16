@@ -22,4 +22,6 @@ public interface UserService {
 
     //事务测试
     String testTransaction(User user);
+
+    String testJdbcTemplate(User user);
 }
