@@ -1,5 +1,6 @@
 package com.zw.controller;
 
+import cn.hutool.http.HttpUtil;
 import com.zw.entity.User;
 import com.zw.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,6 +62,10 @@ public class UserController {
     @PostMapping("/jdbcTemplateTest")
     public ResponseEntity<String> jdbcTemplateTest(@RequestBody User user) {
         String rep = userService.testJdbcTemplate(user);
+        for (int i = 0; i <3 ; i++) {
+            HttpUtil.get("https://cn.bing.com/");
+        }
+
         return ResponseEntity.ok(rep);
     }
 }

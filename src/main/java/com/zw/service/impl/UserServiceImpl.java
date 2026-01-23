@@ -7,6 +7,7 @@ import com.zw.entity.User;
 import com.zw.entity.vo.UserVo;
 import com.zw.repository.UserRepository;
 import com.zw.service.UserService;
+import org.hibernate.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +16,8 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -26,6 +29,8 @@ public class UserServiceImpl implements UserService {
     private UserRepository userRepository;
     @Autowired
     private JdbcTemplate jdbcTemplate;
+    @PersistenceContext
+    private EntityManager entityManager;
 
     @Override
     public User saveUser(User user) {
@@ -70,6 +75,7 @@ public class UserServiceImpl implements UserService {
     }
     /**
      * 测试事务中遇到的一些问题
+     * 注意：entityManager执行所有方法，都会先执行
      * @param user
      * @return
      */
@@ -79,7 +85,18 @@ public class UserServiceImpl implements UserService {
         User user2=new User();
         user2.setEmail("哈哈"+DateUtil.now()+"@qq.com");
         user2.setUsername("哈哈"+DateUtil.now());
+        //测试删除
+        entityManager.flush();
+        entityManager.clear();
+        //注意前后两次hashcode一样，close的代理方法内部其实什么也不做
+        log.info("EM close前:{}",entityManager.unwrap(Session.class).hashCode());
+        entityManager.close();//即使执行close，内部执行到SharedEntityManagerInvocationHandler的invoke方法
+        log.info("EM close后:{}",entityManager.unwrap(Session.class).hashCode());
         userRepository.save(user2);
+        log.info("EM close后并且save后:{}",entityManager.unwrap(Session.class).hashCode());
+
+
+       // userRepository.deleteById(user2.getId());
         List<UserVo> userVos=userRepository.findUserVoByNativeSql(user.getUsername());
         if (CollUtil.isNotEmpty(userVos)){
                 log.info("返回接口查询结果：{}", JSONUtil.toJsonStr(userVos));

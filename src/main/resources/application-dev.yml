@@ -60,3 +60,5 @@ logging:
     root: INFO                        # 根日志级别（生产用INFO，减少日志量）
     org.hibernate.SQL: INFO          # 打印SQL（和show-sql配合 DEBUG）
     org.hibernate.type.descriptor.sql.BasicBinder: INFO # 打印SQL参数（便于调试 TRACE）
+#    org.springframework.jdbc.core.JdbcTemplate: DEBUG  #打印springjdbc的sql
+#    org.springframework.jdbc.core.StatementCreatorUtils: TRACE #打印springjdbc的sql
