@@ -2,7 +2,9 @@ package com.zw.service.impl;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.lang.Dict;
 import cn.hutool.json.JSONUtil;
+import com.zw.entity.Depart;
 import com.zw.entity.User;
 import com.zw.entity.vo.UserVo;
 import com.zw.repository.UserRepository;
@@ -11,6 +13,7 @@ import org.hibernate.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Example;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
@@ -63,10 +66,25 @@ public class UserServiceImpl implements UserService {
     public List<User> getAllUsers() {
         return userRepository.findAll();
     }
-
+/**
+     * 测试模糊查询,注意jpa默认会过滤空值，也就是 .setCode(null) 不会生成 code is null
+     * 懒加载后使用相关对象必须在事务中才不报错
+     * @param username
+     * @return
+     */
     @Override
+    @Transactional(readOnly = true)
     public List<User> getUserByUsername(String username) {
-        return userRepository.findByUsernameLike("%" + username + "%");
+
+        List<User> userList = userRepository.findAll(Example.of(
+                new User().setAge(18).setUsername("aaa").setDepart(new Depart().setType("1").setCode(null))));
+//        List<User> userList = userRepository.findAll(Example.of(
+//                new User().setAge(18).setUsername("aaa")));
+
+        User user = userRepository.findById("2014654625591988224").orElse(null);
+        log.info(user.getDepart().getName());
+        List<User> userLikeList = userRepository.findByUsernameLike("%" + username + "%");
+        return userLikeList;
     }
 
     @Override

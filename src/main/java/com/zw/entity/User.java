@@ -1,8 +1,15 @@
 package com.zw.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.ToString;
+import lombok.experimental.Accessors;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
+import org.hibernate.annotations.NotFound;
+import org.hibernate.annotations.NotFoundAction;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
@@ -16,7 +23,8 @@ import java.util.Date;
  * @Version 实体类字段类型必须为long
  */
 @Data
-@EqualsAndHashCode(callSuper = true) // ← 显式启用调用父类
+@EqualsAndHashCode(callSuper = true) // ← 关键！
+@Accessors(chain = true)
 @Entity
 @Table(name = "t_user") // 指定数据库表名
 public class User extends BaseEntity {
@@ -29,6 +37,9 @@ public class User extends BaseEntity {
 
     @Column(name = "email", length = 100)
     protected String email;
+    @Column(name = "depart_id", length = 100)
+    protected String departId;
+
 
     @JsonProperty("createUserID")
     @CreatedBy
@@ -51,4 +62,25 @@ public class User extends BaseEntity {
     @Column(name = "version")
     @Version
     private Long version;
+
+    /**
+     * 注意 @NotFound 会导致懒加载失效，
+     * FetchType.LAZY必须在事务中用，否则用相关对象会报错
+     * FetchMode.SELECT 相同的id不会重复查询， JOIN比SELECT略微好些
+     */
+    @JsonIgnore
+    @ToString.Exclude
+    @ManyToOne(fetch = FetchType.LAZY)
+    @Fetch(FetchMode.SELECT)
+    // 注意：@NotFound 会导致懒加载失效
+//    @NotFound(
+//            action = NotFoundAction.IGNORE
+//    )
+    @JoinColumn(
+            name = "depart_id",
+            referencedColumnName = "id",
+            insertable = false,
+            updatable = false
+    )
+    protected Depart depart;
 }
