@@ -3,17 +3,22 @@ package com.zw;
 import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSONUtil;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.zw.entity.TOrder;
+import com.zw.entity.TOrderItem;
 import com.zw.entity.User;
+import com.zw.service.TOrderService;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.data.domain.Page;
 
+import java.math.BigDecimal;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -31,6 +36,8 @@ public class ZwJpaTest {
     private String baseUrl() {
         return "http://localhost:" + port + "/users";
     }
+    @Autowired
+    private TOrderService tOrderService;
 
     // === POST 创建用户 ===
     private User postUser(User user) {
@@ -159,5 +166,46 @@ public class ZwJpaTest {
         List<User> users = page.getContent();
         assertThat(users).hasSize(2);
         assertThat(users.stream().allMatch(u -> u.getUsername().contains("张"))).isTrue();
+    }
+
+    @Test
+    void testCreateOrder() {
+        // 1. 创建订单主表
+        TOrder TOrder = new TOrder();
+        TOrder.setOrderNo("ORD" + System.currentTimeMillis());
+        TOrder.setUserId("user-123");
+        TOrder.setStatus(0); // 待支付
+        TOrder.setTotalAmount(new BigDecimal("449.97")); // 149.99 + 299.98
+        TOrder.setActualAmount(new BigDecimal("449.97"));
+        TOrder.setCurrency("CNY");
+        TOrder.setShippingFee(BigDecimal.ZERO);
+        TOrder.setDiscountAmount(BigDecimal.ZERO);
+        TOrder.setConsigneeName("张三");
+        TOrder.setConsigneePhone("13800138000");
+        // 2. 创建第一个商品明细
+        TOrderItem item1 = new TOrderItem();
+        item1.setProductId("prod-001");
+        item1.setSkuId("sku-red-xl");
+        item1.setProductName("纯棉T恤");
+        item1.setSkuDesc("红色 / XL");
+        item1.setPrice(new BigDecimal("149.99"));
+        item1.setQuantity(1);
+        item1.setTotalPrice(new BigDecimal("149.99"));
+        // 3. 创建第二个商品明细
+        TOrderItem item2 = new TOrderItem();
+        item2.setProductId("prod-002");
+        item2.setSkuId("sku-blue-m");
+        item2.setProductName("牛仔外套");
+        item2.setSkuDesc("蓝色 / M");
+        item2.setPrice(new BigDecimal("299.98"));
+        item2.setQuantity(1);
+        item2.setTotalPrice(new BigDecimal("299.98"));
+        // 设置订单的明细列表
+        TOrder.setItems(Arrays.asList(item1, item2));
+        // 5. 保存订单（级联保存两个明细）
+//        TOrder savedTOrder = tOrderService.createOrderAutoSaveItem(TOrder);
+        TOrder savedTOrder = tOrderService.createOrderNoAutoSaveItem(TOrder);
+
+
     }
 }

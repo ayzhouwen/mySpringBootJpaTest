@@ -65,12 +65,12 @@ public class User extends BaseEntity {
 
     /**
      * 注意 @NotFound 会导致懒加载失效，
-     * FetchType.LAZY必须在事务中用，否则用相关对象会报错
+     * FetchType.LAZY必须在事务中用，否则查完对象后续使用用相关对象会报错
      * FetchMode.SELECT 相同的id不会重复查询， JOIN比SELECT略微好些
      */
     @JsonIgnore
     @ToString.Exclude
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @Fetch(FetchMode.SELECT)
     // 注意：@NotFound 会导致懒加载失效
 //    @NotFound(
