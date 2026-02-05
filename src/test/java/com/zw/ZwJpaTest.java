@@ -1,5 +1,7 @@
 package com.zw;
 
+import cn.hutool.core.convert.Convert;
+import cn.hutool.core.util.IdUtil;
 import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSONUtil;
@@ -8,6 +10,8 @@ import com.zw.entity.TOrder;
 import com.zw.entity.TOrderItem;
 import com.zw.entity.User;
 import com.zw.service.TOrderService;
+import com.zw.util.MyDateUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -18,6 +22,7 @@ import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.data.domain.Page;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -25,6 +30,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+@Slf4j
 public class ZwJpaTest {
 
     @LocalServerPort
@@ -205,7 +211,40 @@ public class ZwJpaTest {
         // 5. 保存订单（级联保存两个明细）
 //        TOrder savedTOrder = tOrderService.createOrderAutoSaveItem(TOrder);
         TOrder savedTOrder = tOrderService.createOrderNoAutoSaveItem(TOrder);
-
-
     }
+
+    /**
+     * 注意 application.yml 的active要设置为 prod
+     */
+    @Test
+    void testBatchInsert() {
+        List<TOrder> list = new ArrayList<>();
+        for (int i = 0; i <50000 ; i++) {
+            TOrder tOrder = new TOrder();
+            tOrder.setOrderNo("ORD:" + IdUtil.getSnowflakeNextIdStr());
+            tOrder.setUserId("user-123-test"+i);
+            tOrder.setStatus(0); // 待支付
+            tOrder.setTotalAmount(new BigDecimal(Convert.toStr(i))); // 149.99 + 299.98
+            tOrder.setActualAmount(new BigDecimal(Convert.toStr(i)));
+            tOrder.setCurrency("CNY");
+            tOrder.setShippingFee(BigDecimal.ZERO);
+            tOrder.setDiscountAmount(BigDecimal.ZERO);
+            tOrder.setConsigneeName("张三"+ i);
+            tOrder.setConsigneePhone("1380013800-"+i);
+            list.add(tOrder);
+        }
+        log.info("外层调用批量写开始");
+        long start = System.currentTimeMillis();
+//        tOrderService.jpaBatchInsert1(list);
+        tOrderService.springJdbcBatchInsert(list);
+        long end = System.currentTimeMillis();
+        long totalTimeMillis = end - start;
+        double totalTimeSeconds = totalTimeMillis / 1000.0;
+        double recordsPerSecond = list.size() / totalTimeSeconds;
+        log.info(MyDateUtil.execTime("外层调用批量写结束-耗时",start));
+        log.info("插入 {} 条数据，耗时 {} ms，平均每秒处理 {} 条", list.size(), totalTimeMillis, String.format("%.2f", recordsPerSecond));
+//        tOrderService.jpaBatchInsert2(list);
+    }
+
+
 }

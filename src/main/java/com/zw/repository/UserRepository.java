@@ -23,12 +23,13 @@ public interface UserRepository extends JpaRepository<User, String> {
     /**
      * 方案1：原生SQL查询映射到VO,UserVo必须是接口，并且结果不能被json序列化
      * 注意：参数绑定 ?1 对应方法参数 keyword
+     * 注意：as 全部小写 比如createuserid 。UserVo的getCreateUserId能接收到数据
      */
     @Query(value = "SELECT " +
             "u.username AS username, " +
             "u.age  AS age, " +
             "u.email  AS email, " +
-            "u.create_user_id  AS createUserId, " +     // 数据库字段 -> Java属性
+            "u.create_user_id  AS createuserid, " +     // 这写成小写也可以
             "u.create_time AS  createTime, " +         // 注意别名必须匹配
             "u.update_user_id  AS updateUserId, " +
             "u.update_time  AS updateTime " +

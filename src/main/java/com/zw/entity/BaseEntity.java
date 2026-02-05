@@ -28,4 +28,8 @@ public  class BaseEntity implements Serializable {
             this.id = String.valueOf(SNOWFLAKE.nextId());
         }
     }
+
+    public static String getNextId(){
+    	return String.valueOf(SNOWFLAKE.nextId());
+    }
 }

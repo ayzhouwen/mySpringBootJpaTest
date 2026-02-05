@@ -17,11 +17,11 @@ spring:
       useSSL=false&verifyServerCertificate=false&\
       serverTimezone=Asia/Shanghai&\
       allowPublicKeyRetrieval=true&\
-      rewriteBatchedStatements=true&\  # 开启批量SQL重写（提升批量操作性能）
+      rewriteBatchedStatements=false&\  # 开启批量SQL重写（提升批量操作性能）
 #      cachePrepStmts=true&\           # 开启PreparedStatement缓存(AI生成我先注释掉，之前没用过)
 #      prepStmtCacheSize=250&\         # 缓存大小(AI生成我先注释掉，之前没用过)
 #      prepStmtCacheSqlLimit=2048&\    # SQL最大长度(AI生成我先注释掉，之前没用过)
-      useServerPrepStmts=true"        # 使用服务器端PreparedStatement
+      useServerPrepStmts=false"        # 使用服务器端PreparedStatement（一般不配是false）
     username: root
     password: jcca@123
     # HikariCP 连接池核心配置（生产必配）
@@ -61,3 +61,5 @@ logging:
     root: INFO                        # 根日志级别（生产用INFO，减少日志量）
     org.hibernate.SQL: DEBUG          # 打印SQL（和show-sql配合）
     org.hibernate.type.descriptor.sql.BasicBinder: TRACE # 打印SQL参数（便于调试）
+    org.springframework.jdbc.core.JdbcTemplate: DEBUG  #打印springjdbc的sql
+    org.springframework.jdbc.core.StatementCreatorUtils: TRACE #打印springjdbc的sql

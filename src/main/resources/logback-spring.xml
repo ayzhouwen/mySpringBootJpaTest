@@ -18,11 +18,11 @@
     <!-- 系统日志输出 -->
 
     <appender name="file_debug" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>${log.path}/pls.log</file>
+        <file>${log.path}/myJpaTest.log</file>
         <!-- 循环政策：基于时间创建日志文件 -->
         <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
             <!-- 日志文件名格式 -->
-            <fileNamePattern>${log.path}/pls.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <fileNamePattern>${log.path}/myJpaTest.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
             <!-- 单个日志文件最大大小，当文件达到该大小则触发截断-->
             <maxFileSize>200MB</maxFileSize>
             <!-- 日志文件保留最大时间滚动周期，比如当filaNamePattern中%d以为dd结尾时，则保留3600天-->
@@ -36,7 +36,7 @@
         </encoder>
         <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
             <!-- 过滤的级别 -->
-            <level>DEBUG</level>
+            <level>TRACE</level>
         </filter>
     </appender>
 
