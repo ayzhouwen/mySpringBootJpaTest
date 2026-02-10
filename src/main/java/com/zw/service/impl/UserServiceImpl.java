@@ -2,8 +2,8 @@ package com.zw.service.impl;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateUtil;
-import cn.hutool.core.lang.Dict;
 import cn.hutool.json.JSONUtil;
+import com.zw.config.MyJson;
 import com.zw.entity.Depart;
 import com.zw.entity.User;
 import com.zw.entity.vo.UserVo;
@@ -34,6 +34,8 @@ public class UserServiceImpl implements UserService {
     private JdbcTemplate jdbcTemplate;
     @PersistenceContext
     private EntityManager entityManager;
+    @Autowired
+    private MyJson myJson;
 
     @Override
     public User saveUser(User user) {
@@ -94,6 +96,7 @@ public class UserServiceImpl implements UserService {
     /**
      * 测试事务中遇到的一些问题
      * 注意：entityManager执行所有方法，都会先执行
+     * SharedEntityManagerCreator.createSharedEntityManager
      * @param user
      * @return
      */
@@ -117,7 +120,8 @@ public class UserServiceImpl implements UserService {
        // userRepository.deleteById(user2.getId());
         List<UserVo> userVos=userRepository.findUserVoByNativeSql(user.getUsername());
         if (CollUtil.isNotEmpty(userVos)){
-                log.info("返回接口查询结果：{}", JSONUtil.toJsonStr(userVos));
+                log.info("返回接口查询结果【hutool】：{}", JSONUtil.toJsonStr(userVos));
+                log.info("返回接口查询结果【myJson】：{}", myJson.toJsonStr(userVos));
         }
         List<Map<String, Object>> userVos2=userRepository.findUserVoByNativeSql2(user.getUsername());
         if (CollUtil.isNotEmpty(userVos2)){
