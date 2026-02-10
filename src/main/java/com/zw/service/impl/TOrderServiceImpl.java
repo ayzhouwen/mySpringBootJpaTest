@@ -2,6 +2,7 @@ package com.zw.service.impl;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.json.JSONObject;
 import com.zw.entity.BaseEntity;
 import com.zw.entity.TOrder;
 import com.zw.entity.TOrderItem;
@@ -12,19 +13,25 @@ import com.zw.util.MyDateUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.criteria.Predicate;
+import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 @Service
 public class TOrderServiceImpl implements TOrderService {
@@ -235,6 +242,58 @@ public class TOrderServiceImpl implements TOrderService {
                 }
             });
         }
+    }
+
+    @Override
+    public Page<TOrder> getTOrderPage(JSONObject params) {
+        Integer pageNum = params.getInt("pageNum");
+        Integer pageSize = params.getInt("pageSize");
+        if (pageNum==null||pageSize==null){
+            throw new RuntimeException("pageNum和pageSize不能为空");
+        }
+        // 构建动态查询条件
+        Specification<TOrder> spec = (root, query, cb) -> {
+            List<Predicate> predicates = new ArrayList<>();
+
+            // 条件1: status 不为 null 时才加
+            Integer status=params.getInt("status");
+            if (status != null) {
+                predicates.add(cb.equal(root.get("status"), status));
+            }
+
+            // 条件2: 金额在 100 ~ 200（你也可以传参，这里写死范围）
+            BigDecimal lower = params.getBigDecimal("lower");
+            BigDecimal upper = params.getBigDecimal("upper");
+            if (lower != null && upper != null) {
+                // 两者都不为空：BETWEEN
+                predicates.add(cb.between(root.get("totalAmount"), lower, upper));
+            } else if (lower != null) {
+                // 只有下限：>= lower
+                predicates.add(cb.greaterThanOrEqualTo(root.get("totalAmount"), lower));
+            } else if (upper != null) {
+                // 只有上限：<= upper
+                predicates.add(cb.lessThanOrEqualTo(root.get("totalAmount"), upper));
+            }
+            // 条件3: 时间范围（可选，按需添加）
+            Date startTime = params.getDate("startTime");
+            Date endTime = params.getDate("endTime");
+            if (startTime != null && endTime != null) {
+                predicates.add(cb.between(root.get("createTime"), startTime, endTime));
+            } else if (startTime != null) {
+                predicates.add(cb.greaterThanOrEqualTo(root.get("createTime"), startTime));
+            } else if (endTime != null) {
+                predicates.add(cb.lessThanOrEqualTo(root.get("createTime"), endTime));
+            }
+
+            return cb.and(predicates.toArray(new Predicate[0]));
+        };
+        // 构建分页 + 排序
+        Sort sort = Sort.by(Sort.Direction.DESC, "createTime");
+        Pageable pageable = PageRequest.of(pageNum, pageSize, sort);
+        // 执行查询
+        Page<TOrder> orderPage = orderRepository.findAll(spec, pageable);
+
+        return orderPage;
     }
 
 

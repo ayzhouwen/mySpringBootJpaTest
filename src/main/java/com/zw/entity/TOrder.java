@@ -1,4 +1,5 @@
 package com.zw.entity;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -112,7 +113,11 @@ public class TOrder extends BaseEntity  {
     /**
      * 订单明细列表（一对多关联）
      * mappedBy 指向 OrderItem 中的 order 字段
+     *
+     *JsonIgnore 返回请求响应时，忽略这个字段，否则不仅报错而且可能还出出现n+1问题，如果需要返回json，那么
+     * 不能用此方法，应该再建个dto类
      */
+    @JsonIgnore   //JsonIgnore 返回请求响应时，忽略这个字段，否则不仅报错而且可能还出出现n+1问题，如果需要返回json，那么
     @OneToMany(mappedBy = "tOrder",  fetch = FetchType.LAZY)
     private List<TOrderItem> items = new ArrayList<>();
 }

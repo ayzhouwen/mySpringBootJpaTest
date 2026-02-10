@@ -1,8 +1,11 @@
 package com.zw.service;
 
+import cn.hutool.json.JSONObject;
 import com.zw.entity.TOrder;
+import org.springframework.data.domain.Page;
 
 import java.util.List;
+import java.util.Map;
 
 public interface TOrderService {
     /**
@@ -32,4 +35,9 @@ public interface TOrderService {
      * @param list
      */
     void springJdbcBatchInsert(List<TOrder> list);
+    /**
+     * 获取订单分页，动态sql查询条件
+     * @return
+     */
+    Page<TOrder> getTOrderPage(JSONObject params);
 }

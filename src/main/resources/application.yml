@@ -1,3 +1,4 @@
+# 开发平时用dev【用p6spy和减少了一些日志】，想看完整的jap日志用 prod
 spring:
   profiles:
-    active: prod
+    active: dev

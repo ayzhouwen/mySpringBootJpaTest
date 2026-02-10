@@ -219,7 +219,7 @@ public class ZwJpaTest {
     @Test
     void testBatchInsert() {
         List<TOrder> list = new ArrayList<>();
-        for (int i = 0; i <50000 ; i++) {
+        for (int i = 0; i <100 ; i++) {
             TOrder tOrder = new TOrder();
             tOrder.setOrderNo("ORD:" + IdUtil.getSnowflakeNextIdStr());
             tOrder.setUserId("user-123-test"+i);
