@@ -1,5 +1,6 @@
 package com.zw.entity.vo;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.zw.entity.BaseEntity;
 import lombok.Data;
@@ -23,7 +24,9 @@ public interface  UserVo {
     Integer getAge();
     String getEmail();
     String getCreateUserId();
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     Date getCreateTime();
     String getUpdateUserId();
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     Date getUpdateTime();
 }
