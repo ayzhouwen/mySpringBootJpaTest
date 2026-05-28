@@ -27,26 +27,26 @@ public class TOrder extends BaseEntity  {
     private String orderNo;
 
     /** 下单用户ID（业务用户） */
-    @Column(name = "user_id", nullable = false, length = 36)
+    @Column(name = "user_id", nullable = true, length = 36)
     private String userId;
 
     /**
      * 订单状态：
      * 0-待支付，1-已支付，2-已发货，3-已完成，4-已取消，5-退款中
      */
-    @Column(name = "status", nullable = false)
+    @Column(name = "status", nullable = true)
     private Integer status;
 
     /** 订单总金额 */
-    @Column(name = "total_amount", nullable = false, precision = 12, scale = 2)
+    @Column(name = "total_amount", nullable = true, precision = 12, scale = 2)
     private BigDecimal totalAmount;
 
     /** 实付金额（扣除优惠后） */
-    @Column(name = "actual_amount", nullable = false, precision = 12, scale = 2)
+    @Column(name = "actual_amount", nullable = true, precision = 12, scale = 2)
     private BigDecimal actualAmount;
 
     /** 货币代码，默认 CNY */
-    @Column(name = "currency", nullable = false, length = 3)
+    @Column(name = "currency", nullable = true, length = 3)
     private String currency;
 
     /** 支付方式：alipay, wechat, bank_card 等 */
@@ -70,11 +70,11 @@ public class TOrder extends BaseEntity  {
     private String consigneePhone;
 
     /** 运费 */
-    @Column(name = "shipping_fee", nullable = false, precision = 8, scale = 2)
+    @Column(name = "shipping_fee", nullable = true, precision = 8, scale = 2)
     private BigDecimal shippingFee;
 
     /** 优惠金额 */
-    @Column(name = "discount_amount", nullable = false, precision = 8, scale = 2)
+    @Column(name = "discount_amount", nullable = true, precision = 8, scale = 2)
     private BigDecimal discountAmount;
 
     /** 使用的优惠券ID */

@@ -40,4 +40,13 @@ public interface TOrderService {
      * @return
      */
     Page<TOrder> getTOrderPage(JSONObject params);
+
+    /**
+     * 嵌套事务测试
+     */
+    void nestTransactionalTest();
+    /**
+     * 嵌套事务测试内部方法
+     */
+    void  nestTransactionalTestItem(TOrder tOrder);
 }

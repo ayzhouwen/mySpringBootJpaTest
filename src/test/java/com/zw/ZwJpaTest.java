@@ -245,6 +245,13 @@ public class ZwJpaTest {
         log.info("插入 {} 条数据，耗时 {} ms，平均每秒处理 {} 条", list.size(), totalTimeMillis, String.format("%.2f", recordsPerSecond));
 //        tOrderService.jpaBatchInsert2(list);
     }
+    /**
+     * 测试事务嵌套
+     */
+    @Test
+    void testOrder() {
+        tOrderService.nestTransactionalTest();
+    }
 
 
 }

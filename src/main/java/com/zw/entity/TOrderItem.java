@@ -41,15 +41,15 @@ public class TOrderItem extends BaseEntity {
     private TOrder tOrder;
 
     /** 商品ID */
-    @Column(name = "product_id", nullable = false, length = 36)
+    @Column(name = "product_id", nullable = true, length = 36)
     private String productId;
 
     /** SKU ID（具体规格，如颜色、尺寸） */
-    @Column(name = "sku_id", nullable = false, length = 36)
+    @Column(name = "sku_id", nullable = true, length = 36)
     private String skuId;
 
     /** 商品名称（冗余，防止商品删除后无法显示） */
-    @Column(name = "product_name", nullable = false, length = 100)
+    @Column(name = "product_name", nullable = true, length = 100)
     private String productName;
 
     /** SKU描述，如“红色 / XL” */
@@ -57,15 +57,15 @@ public class TOrderItem extends BaseEntity {
     private String skuDesc;
 
     /** 下单时单价 */
-    @Column(name = "price", nullable = false, precision = 10, scale = 2)
+    @Column(name = "price", nullable = true, precision = 10, scale = 2)
     private BigDecimal price;
 
     /** 购买数量 */
-    @Column(name = "quantity", nullable = false)
+    @Column(name = "quantity", nullable = true)
     private Integer quantity;
 
     /** 小计 = price × quantity */
-    @Column(name = "total_price", nullable = false, precision = 12, scale = 2)
+    @Column(name = "total_price", nullable = true, precision = 12, scale = 2)
     private BigDecimal totalPrice;
 
     /** 创建用户ID */

@@ -2,6 +2,7 @@ package com.zw.service.impl;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.extra.spring.SpringUtil;
 import cn.hutool.json.JSONObject;
 import com.zw.entity.BaseEntity;
 import com.zw.entity.TOrder;
@@ -20,6 +21,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
@@ -44,6 +46,10 @@ public class TOrderServiceImpl implements TOrderService {
     private EntityManager entityManager;
     @Autowired
     private JdbcTemplate jdbcTemplate;
+
+/*  直接self会引起循环依赖，可以用springutil来获取bean
+    @Autowired
+    private TOrderService self;*/
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -294,6 +300,39 @@ public class TOrderServiceImpl implements TOrderService {
         Page<TOrder> orderPage = orderRepository.findAll(spec, pageable);
 
         return orderPage;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void nestTransactionalTest() {
+        TOrder tOrder = new TOrder();
+        if (StrUtil.isEmpty(tOrder.getOrderNo())) {
+            String randomSuffix = String.format("%04d", new Random().nextInt(10000));
+            tOrder.setOrderNo("ORD"  + randomSuffix);
+        }
+        orderRepository.save(tOrder);
+
+        this.middleNestTransactionalTestItem(tOrder);
+    }
+
+    private void middleNestTransactionalTestItem(TOrder tOrder) {
+        try {
+            TOrderService  self= SpringUtil.getBean(TOrderService.class);
+            self.nestTransactionalTestItem(tOrder);
+        } catch (Exception e) {
+            tOrder.setRemark("内部事务异常");
+            orderRepository.save(tOrder);
+        }
+    }
+    @Override
+    @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRES_NEW)
+    public void nestTransactionalTestItem(TOrder tOrder) {
+        TOrderItem tOrderItem = new TOrderItem();
+        tOrderItem.setOrderId(tOrder.getId());
+        orderItemRepository.save(tOrderItem);
+        if (2==1){
+            throw new RuntimeException("嵌套事务测试");
+        }
     }
 
 
